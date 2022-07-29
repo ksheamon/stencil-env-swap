@@ -1,0 +1,18 @@
+{
+  "name": "stencil-env-swap",
+  "version": "1.0.0",
+  "description": "A lightweight tool to allow for easy switching of BigCommerce environments for local development with Stencil CLI",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "bigcommerce",
+    "stencil-cli",
+    "bigcommerce-env",
+    "env-swap",
+    "environment"
+  ],
+  "author": "Kimberly Sheamon",
+  "license": "ISC"
+}
