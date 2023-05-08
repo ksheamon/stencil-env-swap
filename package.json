@@ -1,12 +1,9 @@
 {
-  "name": "stencil-env-swap",
-  "version": "1.0.0",
+  "name": "@ksheamon/stencil-swap",
+  "version": "1.0.5",
   "description": "A lightweight tool to allow for easy switching of BigCommerce environments for local development with Stencil CLI",
-  "main": "index.js",
   "scripts": {
-    "swap:dev": "APP_ENV=dev npx ./env/setEnv.js",
-    "swap:stage": "APP_ENV=stage node ./env/setEnv.js",
-    "swap:prod": "APP_ENV=production node ./env/setEnv.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "bigcommerce",
@@ -17,15 +14,39 @@
     "stencil-swap"
   ],
   "author": "Kimberly Sheamon <kimberly.sheamon@gmail.com>",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/ksheamon/stencil-env-swap/issues"
   },
-  "homepage": "https://github.com/ksheamon/stencil-env-swap",
-  "repository": "https://github.com/ksheamon/stencil-env-swap",
-  "license": "ISC",
+  "homepage": "https://github.com/ksheamon/stencil-env-swap#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ksheamon/stencil-env-swap.git"
+  },
   "type": "module",
-  "devDependencies": {
+  "dependencies": {
+    "@inquirer/prompts": "^1.0.1",
     "child_process": "^1.0.2",
-    "dotenv": "^16.0.3"
+    "commander": "^10.0.1",
+    "dotenv": "^16.0.3",
+    "fs": "^0.0.1-security"
+  },
+  "bin": {
+    "stencil-swap-init": "bin/stencil-swap-init.js",
+    "stencil-swap-set": "bin/stencil-swap-set.js",
+    "stencil-swap": "bin/stencil-swap.js"
+  },
+  "files": [
+    "/bin",
+    "/src",
+    "constants.cjs",
+    "package-lock.json",
+    ".gitignore"
+  ],
+  "peerDependencies": {
+    "@bigcommerce/stencil-cli": "^7.0.0"
+  },
+  "engines": {
+    "node": "16 || 18"
   }
 }
