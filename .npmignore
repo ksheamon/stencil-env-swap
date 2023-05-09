@@ -1,3 +1,5 @@
 package-lock.json
 *.stencil.json
 node_modules/
+src/
+.eslintrc

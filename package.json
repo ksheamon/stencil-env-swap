@@ -25,21 +25,21 @@
   },
   "type": "module",
   "dependencies": {
-    "@inquirer/prompts": "^1.0.1",
+    "@inquirer/prompts": "^1.0.3",
     "child_process": "^1.0.2",
     "commander": "^10.0.1",
-    "dotenv": "^16.0.3",
-    "fs": "^0.0.1-security"
+    "dotenv": "^16.0.3"
   },
   "bin": {
+    "stencil-swap": "bin/stencil-swap.js",
     "stencil-swap-init": "bin/stencil-swap-init.js",
     "stencil-swap-set": "bin/stencil-swap-set.js",
-    "stencil-swap": "bin/stencil-swap.js"
+    "stencil-swap-who": "bin/stencil-swap-who.js",
+    "stencil-swap-whoami": "bin/stencil-swap-whoami.js"
   },
   "files": [
     "/bin",
     "/src",
-    "constants.cjs",
     "package-lock.json",
     ".gitignore"
   ],
@@ -47,6 +47,12 @@
     "@bigcommerce/stencil-cli": "^7.0.0"
   },
   "engines": {
-    "node": "16 || 18"
+    "node": "^18.0.0"
+  },
+  "devDependencies": {},
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
   }
 }

@@ -2,3 +2,4 @@ package-lock.json
 *.stencil.json
 node_modules/
 env/
+.eslintrc
