@@ -8,7 +8,7 @@ The Stencil CLI swap tool will allow you to quickly and effortlessly toggle betw
 
 **Note:** A different set of credentials is required for each environment
 
-  ---
+---
 
 **CONFIGURE the tool** by initializing each environment with the `stencil-swap init` command.
 
