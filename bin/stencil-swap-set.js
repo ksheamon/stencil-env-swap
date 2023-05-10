@@ -6,7 +6,6 @@ import {
     ALLENVS,
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
-    ROOT_DIR,
     STENCIL_HOST
 } from '../src/constants.js';
 
@@ -45,8 +44,16 @@ dotenv.config({ path: `${PATH_ENVKEYS}/${$ENV}.env` });
 // Read environment variables from .env file
 const { STORE_HASH, STENCIL_TOKEN, PORT } = process.env;
 
+// Check env data for invalid chars
+// [CWE-78, CWE-88]
+const regEx = new RegExp('[^a-zA-Z0-9]');
+if ((regEx.test(STORE_HASH)) || (regEx.test(STENCIL_TOKEN)) || (regEx.test(STENCIL_HOST)) || (regEx.test(PATH_ENVCONFIG) || (regEx.test($ENV)))) {
+    console.log('Error! Malformed config data');
+    process.exit(1);
+}
+
 // Copy environment config.json file to root
-exec(`cp ${PATH_ENVCONFIG}/${$ENV}.config.json ${ROOT_DIR}/config.json`);
+exec(`cp ${PATH_ENVCONFIG}/${$ENV}.config.json ./config.json`);
 
 // Initialize stencil
 exec(`stencil init --url https://store-${STORE_HASH}.mybigcommerce.com/ --token ${STENCIL_TOKEN} --port ${PORT} --apiHost ${STENCIL_HOST}`);
