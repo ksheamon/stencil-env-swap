@@ -5,6 +5,7 @@ import { copyFile, existsSync, mkdirSync, writeFile } from 'fs';
 import {
     BASE_CONFIG,
     ENVOPTS,
+    PATH_ENV,
     PATH_ENVCONFIG,
     PATH_ENVKEYS
 } from './constants.js';
@@ -39,7 +40,6 @@ export async function promptUser() {
         message: "What port would you like to run the server on?",
         default: 3000
     });
-
     return {
         envType,
         hash,
@@ -74,6 +74,12 @@ export function checkDirs(envRoot, keys, config) {
             // Config subfolder does not exist. Create.
             mkdirSync(config, { recursive: true });
         }
+    }
+
+    // Add .gitignore file to env directory
+    const ignoreFile = `${PATH_ENV}/.gitignore`;
+    if (!(existsSync(ignoreFile))) {
+        createIgnoreFile(ignoreFile);
     }
 }
 
@@ -115,6 +121,16 @@ export function createEnvFile({ envType, hash, port, token }) {
     STORE_HASH = ${hash}`;
 
     writeFile(envKeyFile, configText, (err) => {
+        if (err) {
+            throw err;
+        }
+    });
+}
+
+export function createIgnoreFile(ignoreFile) {
+    const ignoreText = "*";
+
+    writeFile(ignoreFile, ignoreText, (err) => {
         if (err) {
             throw err;
         }

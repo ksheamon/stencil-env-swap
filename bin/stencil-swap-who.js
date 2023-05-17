@@ -5,7 +5,8 @@ import { PATH_ENVKEYS } from '../src/constants.js';
 
 readdir(PATH_ENVKEYS, async function (err, files) {
     if (err) {
-        return console.log('Unable to scan directory: ' + err);
+        console.log('Unable to scan directory: ' + err);
+        process.exit();
     }
 
     files.forEach((filename) => {
