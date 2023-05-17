@@ -24,13 +24,15 @@ readFile(`${ROOT_DIR}/config.stencil.json`, 'utf-8', ((err, data) => {
     }).then((activeHash) => {
         readdir(PATH_ENVKEYS, async function (err, files) {
             if (err) {
-                return console.log('Unable to scan directory: ' + err);
+                console.log('Unable to scan directory: ' + err);
+                process.exit();
             }
 
             const activeEnv = await getActiveEnv(files, activeHash);
 
             if (!activeEnv) {
-                return console.log(`\x1b[33mUnable to identify environment for store hash ${activeHash}. Did you run stencil-swap init?\x1b[0m`)
+                console.log(`\x1b[33mUnable to identify environment for store hash ${activeHash}. Did you run stencil-swap init?\x1b[0m`)
+                process.exit();
             }
 
             console.log(activeEnv);
