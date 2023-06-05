@@ -7,7 +7,6 @@ import {
     ALLENVS,
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
-    ROOT_DIR,
     STENCIL_HOST
 } from '../src/constants.js';
 
