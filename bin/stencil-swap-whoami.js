@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+import * as path from 'path';
 import { createReadStream, readdir, readFile } from 'fs';
 import { Stream } from 'stream';
 import readLine from 'readline';
@@ -10,32 +11,32 @@ const storeUrlParts = STOREURL_PATTERN.split('%%HASH%%', 2);
 const PREHASH = storeUrlParts[0];
 const POSTHASH = storeUrlParts[1];
 
+const _fileURL = path.join(ROOT_DIR, '/config.stencil.json');
 
-readFile(`${ROOT_DIR}/config.stencil.json`, 'utf-8', ((err, data) => {
-    return new Promise((resolve) => {
+readFile(`${_fileURL}`, 'utf-8', (async (_err, data) => {
+    const activeHash = await new Promise((resolve) => {
         const { normalStoreUrl: url } = JSON.parse(data);
 
         const startIdx = url.indexOf(PREHASH) + (PREHASH.length);
         const endIdx = url.indexOf(POSTHASH);
 
-        const activeHash = url.substring(startIdx, endIdx);
+        const hash = url.substring(startIdx, endIdx);
 
-        resolve(activeHash);
-    }).then((activeHash) => {
-        readdir(PATH_ENVKEYS, async function (err, files) {
-            if (err) {
-                return console.log('Unable to scan directory: ' + err);
-            }
+        resolve(hash);
+    });
+    readdir(PATH_ENVKEYS, async function (err, files) {
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        }
 
-            const activeEnv = await getActiveEnv(files, activeHash);
+        const activeEnv = await getActiveEnv(files, activeHash);
 
-            if (!activeEnv) {
-                return console.log(`\x1b[33mUnable to identify environment for store hash ${activeHash}. Did you run stencil-swap init?\x1b[0m`)
-            }
+        if (!activeEnv) {
+            return console.log(`\x1b[33mUnable to identify environment for store hash ${activeHash}. Did you run stencil-swap init?\x1b[0m`);
+        }
 
-            console.log(activeEnv);
-        });
-    })
+        console.log(activeEnv);
+    });
 }));
 
 function getActiveEnv(files, activeHash) {

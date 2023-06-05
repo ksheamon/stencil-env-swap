@@ -28,7 +28,8 @@
     "@inquirer/prompts": "^1.0.3",
     "child_process": "^1.0.2",
     "commander": "^10.0.1",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "path": "^0.12.7"
   },
   "bin": {
     "stencil-swap": "bin/stencil-swap.js",
@@ -49,7 +50,9 @@
   "engines": {
     "node": "^18.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.2.5"
+  },
   "browser": {
     "fs": false,
     "os": false,
