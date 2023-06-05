@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 import { exec } from 'child_process';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 
 import { 
     ALLENVS,
@@ -52,8 +53,11 @@ if ((regEx.test(STORE_HASH)) || (regEx.test(STENCIL_TOKEN)) || (regEx.test(STENC
     process.exit(1);
 }
 
+const sourcePath = path.join(`${PATH_ENVCONFIG}`, `/${$ENV}.config.json`);
+const destPath = path.join(`${ROOT_DIR}`, `/config.json`);
+
 // Copy environment config.json file to root
-exec(`cp ${PATH_ENVCONFIG}/${$ENV}.config.json ./config.json`);
+exec(`cp ${sourcePath} ${destPath}`);
 
 // Initialize stencil
 exec(`stencil init --url https://store-${STORE_HASH}.mybigcommerce.com/ --token ${STENCIL_TOKEN} --port ${PORT} --apiHost ${STENCIL_HOST}`);
