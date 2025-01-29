@@ -22,18 +22,20 @@ readFile(`${_fileURL}`, 'utf-8', (async (_err, data) => {
 
         const hash = url.substring(startIdx, endIdx);
 
-        resolve(hash);
-    });
-    readdir(PATH_ENVKEYS, async function (err, files) {
-        if (err) {
-            return console.log('Unable to scan directory: ' + err);
-        }
+        resolve(activeHash);
+    }).then((activeHash) => {
+        readdir(PATH_ENVKEYS, async function (err, files) {
+            if (err) {
+                console.log('Unable to scan directory: ' + err);
+                process.exit();
+            }
 
         const activeEnv = await getActiveEnv(files, activeHash);
 
-        if (!activeEnv) {
-            return console.log(`\x1b[33mUnable to identify environment for store hash ${activeHash}. Did you run stencil-swap init?\x1b[0m`);
-        }
+            if (!activeEnv) {
+                console.log(`\x1b[33mUnable to identify environment for store hash ${activeHash}. Did you run stencil-swap init?\x1b[0m`)
+                process.exit();
+            }
 
         console.log(activeEnv);
     });
@@ -45,20 +47,20 @@ function getActiveEnv(files, activeHash) {
         files.forEach((file, i) => {
             const env = file.replace('.env', '');
             let hash = false;
-        
+
             const filePath = `${PATH_ENVKEYS}/${file}`;
-        
+
             const inStream = createReadStream(filePath);
             const outStream = new Stream();
             const rl = readLine.createInterface(inStream, outStream);
             const regEx = new RegExp('STORE_HASH', "i");
-        
+
             rl.on('line', function (line) {
                 if (line && line.search(regEx) >= 0) {
                     hash = line.replace('STORE_HASH =', '').trim();
                 }
             });
-        
+
             rl.on('close', function () {
                 if (hash === activeHash) {
                     resolve(env);

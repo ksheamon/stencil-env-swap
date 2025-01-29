@@ -5,8 +5,10 @@ import { copyFile, existsSync, mkdirSync, writeFile } from 'fs';
 import {
     BASE_CONFIG,
     ENVOPTS,
+    PATH_ENV,
     PATH_ENVCONFIG,
-    PATH_ENVKEYS
+    PATH_ENVKEYS,
+    PMOPTS
 } from './constants.js';
 
 /**
@@ -14,7 +16,7 @@ import {
  * @property {String} envType - Environment (dev, stage, uat, prod)
  * @property {String} hash - Store hash
  * @property {String} token - BigCommerce Stencil access token
- * @property {Number} port - Port to run Stencil on 
+ * @property {Number} port - Port to run Stencil on
 */
 
 /**
@@ -40,17 +42,24 @@ export async function promptUser() {
         default: 3000
     });
 
+    const pm = await select({
+        message: "What is your preferred Package Manager?",
+        choices: PMOPTS,
+        default: "npm"
+    });
+
     return {
         envType,
         hash,
         token,
-        port
+        port,
+        pm
     }
 }
 
 /**
  * Checks whether necessary local directories exist, creating if not
- * @param {String} envRoot - 
+ * @param {String} envRoot -
  * @param {String} keys
  * @param {String} config
  * @return {Void}
@@ -74,6 +83,12 @@ export function checkDirs(envRoot, keys, config) {
             // Config subfolder does not exist. Create.
             mkdirSync(config, { recursive: true });
         }
+    }
+
+    // Add .gitignore file to env directory
+    const ignoreFile = `${PATH_ENV}/.gitignore`;
+    if (!(existsSync(ignoreFile))) {
+        createIgnoreFile(ignoreFile);
     }
 }
 
@@ -104,17 +119,29 @@ export function checkConfig({ envType }) {
  * @param {String} envType - Environment (dev, stage, uat, prod)
  * @param {String} hash - BigCommerce store hash
  * @param {String} token - BigCommerce Stencil access token
- * @param {Number} port - Port to run Stencil on 
+ * @param {Number} port - Port to run Stencil on
+ * @param {String} pm - Preferred package manager
  * @return {Void}
 */
-export function createEnvFile({ envType, hash, port, token }) {
+export function createEnvFile({ envType, hash, port, token, pm }) {
     const envKeyFile = `${PATH_ENVKEYS}/${envType}.env`;
 
     const configText = `PORT = ${port}
-    STENCIL_TOKEN = ${token} 
-    STORE_HASH = ${hash}`;
+    STENCIL_TOKEN = ${token}
+    STORE_HASH = ${hash}
+    PACKAGE_MGR = ${pm}`;
 
     writeFile(envKeyFile, configText, (err) => {
+        if (err) {
+            throw err;
+        }
+    });
+}
+
+export function createIgnoreFile(ignoreFile) {
+    const ignoreText = "*";
+
+    writeFile(ignoreFile, ignoreText, (err) => {
         if (err) {
             throw err;
         }
