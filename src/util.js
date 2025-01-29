@@ -7,7 +7,8 @@ import {
     ENVOPTS,
     PATH_ENV,
     PATH_ENVCONFIG,
-    PATH_ENVKEYS
+    PATH_ENVKEYS,
+    PMOPTS
 } from './constants.js';
 
 /**
@@ -15,7 +16,7 @@ import {
  * @property {String} envType - Environment (dev, stage, uat, prod)
  * @property {String} hash - Store hash
  * @property {String} token - BigCommerce Stencil access token
- * @property {Number} port - Port to run Stencil on 
+ * @property {Number} port - Port to run Stencil on
 */
 
 /**
@@ -40,17 +41,25 @@ export async function promptUser() {
         message: "What port would you like to run the server on?",
         default: 3000
     });
+
+    const pm = await select({
+        message: "What is your preferred Package Manager?",
+        choices: PMOPTS,
+        default: "npm"
+    });
+
     return {
         envType,
         hash,
         token,
-        port
+        port,
+        pm
     }
 }
 
 /**
  * Checks whether necessary local directories exist, creating if not
- * @param {String} envRoot - 
+ * @param {String} envRoot -
  * @param {String} keys
  * @param {String} config
  * @return {Void}
@@ -110,15 +119,17 @@ export function checkConfig({ envType }) {
  * @param {String} envType - Environment (dev, stage, uat, prod)
  * @param {String} hash - BigCommerce store hash
  * @param {String} token - BigCommerce Stencil access token
- * @param {Number} port - Port to run Stencil on 
+ * @param {Number} port - Port to run Stencil on
+ * @param {String} pm - Preferred package manager
  * @return {Void}
 */
-export function createEnvFile({ envType, hash, port, token }) {
+export function createEnvFile({ envType, hash, port, token, pm }) {
     const envKeyFile = `${PATH_ENVKEYS}/${envType}.env`;
 
     const configText = `PORT = ${port}
-    STENCIL_TOKEN = ${token} 
-    STORE_HASH = ${hash}`;
+    STENCIL_TOKEN = ${token}
+    STORE_HASH = ${hash}
+    PACKAGE_MGR = ${pm}`;
 
     writeFile(envKeyFile, configText, (err) => {
         if (err) {

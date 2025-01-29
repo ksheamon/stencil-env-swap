@@ -1,8 +1,9 @@
 #! /usr/bin/env node
 import { exec } from 'child_process';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-import { 
+import {
     ALLENVS,
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
@@ -15,7 +16,7 @@ import { existsSync } from 'fs';
 
 // Error if env argument is missing
 if (argv.length < 3) {
-    console.log('Missing environment type! Enter \x1b[33mdev\x1b[0m, \x1b[33mstage\x1b[0m, or \x1b[33mprod\x1b[0m.');
+    console.log('Missing environment type! Enter \x1b[33mdev\x1b[0m, \x1b[33mstage\x1b[0m, \x1b[33muat\x1b[0m, or \x1b[33mprod\x1b[0m.');
     process.exit();
 }
 
@@ -43,10 +44,22 @@ if (!(existsSync(`${PATH_ENVKEYS}/${$ENV}.env`))) {
 dotenv.config({ path: `${PATH_ENVKEYS}/${$ENV}.env` });
 
 // Read environment variables from .env file
-const { STORE_HASH, STENCIL_TOKEN, PORT } = process.env;
+const { STORE_HASH, STENCIL_TOKEN, PORT, PACKAGE_MGR } = process.env;
+
+const sourcePath = path.join(`${PATH_ENVCONFIG}`, `/${$ENV}.config.json`);
+const destPath = path.join(`${ROOT_DIR}`, `/config.json`);
 
 // Copy environment config.json file to root
-exec(`cp ${PATH_ENVCONFIG}/${$ENV}.config.json ${ROOT_DIR}/config.json`);
+exec(`cp ${sourcePath} ${destPath}`);
 
 // Initialize stencil
-exec(`stencil init --url https://store-${STORE_HASH}.mybigcommerce.com/ --token ${STENCIL_TOKEN} --port ${PORT} --apiHost ${STENCIL_HOST}`);
+exec(`stencil init --url https://store-${STORE_HASH}.mybigcommerce.com/ --token ${STENCIL_TOKEN} --port ${PORT} --apiHost ${STENCIL_HOST} --packageManager ${PACKAGE_MGR}`,
+    (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error.message}`);
+            return;
+        }
+
+        console.log(stdout);
+    }
+);
