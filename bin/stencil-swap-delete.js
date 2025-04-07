@@ -1,15 +1,11 @@
 #! /usr/bin/env node
+import { confirm as inquireConfirm, select } from '@inquirer/prompts';
 import { exec } from 'child_process';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 
 import {
-    ALLENVS,
     ENVOPTS,
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
-    ROOT_DIR,
-    STENCIL_HOST
 } from '../src/constants.js';
 
 import { existsSync } from 'fs';
@@ -20,7 +16,7 @@ async function promptUser() {
         choices: ENVOPTS
     });
 
-    const confirm = await confirm({
+    const confirm = await inquireConfirm({
         message: `Are you sure you want to delete the ${envType} environment?`,
         initialValue: false
     });
@@ -52,6 +48,8 @@ async function deleteEnv() {
     if (existsSync(`${PATH_ENVKEYS}/${envType}.env`)) {
         exec(`rm ${PATH_ENVKEYS}/${envType}.env`);
     }
+
+    console.log(`Deleted ${envType} environment.`)
 }
 
 deleteEnv();
