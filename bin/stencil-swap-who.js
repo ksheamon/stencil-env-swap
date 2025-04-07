@@ -1,16 +1,11 @@
 #! /usr/bin/env node
-import { readdir } from 'fs';
+import { checkEnvList, getEnvList } from '../src/util.js';
 
-import { PATH_ENVKEYS } from '../src/constants.js';
+// Backward compatibility - create if not exist
+checkEnvList();
 
-readdir(PATH_ENVKEYS, async function (err, files) {
-    if (err) {
-        console.log('Unable to scan directory: ' + err);
-        process.exit();
-    }
+const allEnvs = getEnvList();
 
-    files.forEach((filename) => {
-        const envType = filename.replace('.env','');
-        console.log(envType);
-    });
+allEnvs.forEach((envType) => {
+    console.log(envType);
 });

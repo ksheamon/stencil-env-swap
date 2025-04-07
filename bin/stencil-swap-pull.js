@@ -4,19 +4,15 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 import {
+    ALLENVS,
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
     ROOT_DIR,
     STENCIL_HOST
 } from '../src/constants.js';
 
-import { getEnvList } from '../src/util.js';
-
 import { argv } from 'process';
 import { existsSync } from 'fs';
-
-// Backward compatibility
-checkEnvList();
 
 // Error if env argument is missing
 if (argv.length < 3) {
@@ -26,8 +22,6 @@ if (argv.length < 3) {
 
 // Get environment type from CLI argument
 const $ENV = argv[2];
-
-const ALLENVS = getEnvList();
 
 // Error if invalid env was entered
 if (!(ALLENVS.indexOf($ENV) > -1)) {

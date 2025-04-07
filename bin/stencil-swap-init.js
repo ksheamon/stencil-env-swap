@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-import { checkConfig, checkDirs, createEnvFile, promptUser } from "../src/util.js";
+import { appendEnvList, checkConfig, checkDirs, createEnvFile, promptUser } from "../src/util.js";
 import { PATH_ENV, PATH_ENVCONFIG, PATH_ENVKEYS } from "../src/constants.js";
 
 async function init() {
@@ -16,11 +16,17 @@ async function init() {
     // 2. Check for required directories
     checkDirs(PATH_ENV, PATH_ENVKEYS, PATH_ENVCONFIG);
 
-    // 3. Copy config file overwriting existing
+    // 3. Backward compatibility - create if not exist
+    checkEnvList();
+
+    // 4. Copy config file overwriting existing
     checkConfig(userInput);
 
-    // 4. Create env file
+    // 5. Create env file
     createEnvFile(userInput);
+
+    // 6. Add env to types list
+    appendEnvList(userInput);
 }
 
 init();

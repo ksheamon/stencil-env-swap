@@ -8,6 +8,7 @@ const PATH_ENV = `${ROOT_DIR}/env`;
 const PATH_ENVCONFIG = `${ROOT_DIR}/env/config`;
 const PATH_ENVKEYS = `${ROOT_DIR}/env/keys`;
 const BASE_CONFIG = `${ROOT_DIR}/config.json`;
+const ENV_LIST = `${ROOT_DIR}/env/.envconfig`;
 
 const ALLENVS = ['dev','stage','uat','prod'];
 const ALLPMS = ['npm','yarn','pnpm'];
@@ -15,14 +16,6 @@ const STENCIL_HOST = 'https://api.bigcommerce.com';
 
 // globalize the pattern for BC store URLs
 const STOREURL_PATTERN = 'store-%%HASH%%.mybigcommerce.com';
-
-// Name/Value combinations for env selection in CLI
-const ENVOPTS = ALLENVS.map((env) => {
-    return {
-        'name': env,
-        'value': env
-    }
-});
 
 const PMOPTS = ALLPMS.map((pm) => {
     return {
@@ -34,7 +27,7 @@ const PMOPTS = ALLPMS.map((pm) => {
 export {
     ALLENVS,
     BASE_CONFIG,
-    ENVOPTS,
+    ENV_LIST,
     PACKAGE_INFO,
     ROOT_DIR,
     PATH_ENV,

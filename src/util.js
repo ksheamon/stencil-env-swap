@@ -1,10 +1,10 @@
 #! /usr/bin/env node
-import { input, password, select } from '@inquirer/prompts';
-import { copyFile, existsSync, mkdirSync, writeFile } from 'fs';
+import { confirm, input, password, select } from '@inquirer/prompts';
+import { appendFileSync, copyFile, existsSync, mkdirSync, writeFile } from 'fs';
 
 import {
     BASE_CONFIG,
-    ENVOPTS,
+    ENV_LIST,
     PATH_ENV,
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
@@ -13,7 +13,7 @@ import {
 
 /**
  * @typedef {Object} UserInput
- * @property {String} envType - Environment (dev, stage, uat, prod)
+ * @property {String} envType - Environment (single-word string)
  * @property {String} hash - Store hash
  * @property {String} token - BigCommerce Stencil access token
  * @property {Number} port - Port to run Stencil on
@@ -24,10 +24,37 @@ import {
  * @return {UserInput}
 */
 export async function promptUser() {
-    const envType = await select({
-        message: 'Select an environment type: ',
-        choices: ENVOPTS
+    let shouldContinue;
+
+    const envType = await input({
+        message: 'Environment Type/Name',
+        required: true,
+        validate: (value) => {
+            if (value.indexOf(" ") > -1) {
+                return 'Spaces are not allowed';
+            }
+            return true;
+        },
+        transformer: (value) => {
+            return value.toLowerCase();
+        },
+        default: 'dev'
     });
+
+    const envConfigFile = `${PATH_ENVCONFIG}/${envType}.config.json`;
+
+    if (existsSync(envConfigFile)) {
+        shouldContinue = await confirm({
+            message: `Environment ${envType} already exists. Overwrite?`,
+            default: false
+        });
+    } else {
+        shouldContinue = true;
+    }
+
+    if (!shouldContinue) {
+        process.exit();
+    }
 
     const hash = await input({
         message: "What is your BigCommerce store hash?",
@@ -100,17 +127,14 @@ export function checkDirs(envRoot, keys, config) {
 export function checkConfig({ envType }) {
     const envConfigFile = `${PATH_ENVCONFIG}/${envType}.config.json`;
 
-    if (!(existsSync(envConfigFile))) {
-        // Config folder does not exist. Create.
-        if (!(existsSync(BASE_CONFIG))) {
-            // No base config to copy. Exit with error.
-            return console.log(`\x1b[31mMissing theme config file at ${BASE_CONFIG}.\x1b[0m`);
-        } else {
-            console.log(`Copying ${BASE_CONFIG} to ${envConfigFile}`);
-            copyFile(BASE_CONFIG, envConfigFile, (err) => {
-                if (err) throw err;
-            });
-        }
+    if (!(existsSync(BASE_CONFIG))) {
+        // No base config to copy. Exit with error.
+        return console.log(`\x1b[31mMissing theme config file at ${BASE_CONFIG}.\x1b[0m`);
+    } else {
+        console.log(`Copying ${BASE_CONFIG} to ${envConfigFile}`);
+        copyFile(BASE_CONFIG, envConfigFile, (err) => {
+            if (err) throw err;
+        });
     }
 }
 
@@ -124,18 +148,34 @@ export function checkConfig({ envType }) {
  * @return {Void}
 */
 export function createEnvFile({ envType, hash, port, token, pm }) {
+    // create env file
     const envKeyFile = `${PATH_ENVKEYS}/${envType}.env`;
 
-    const configText = `PORT = ${port}
-    STENCIL_TOKEN = ${token}
-    STORE_HASH = ${hash}
-    PACKAGE_MGR = ${pm}`;
+    const configText = `PORT = ${port}\nSTENCIL_TOKEN = ${token}\nSTORE_HASH = ${hash}\nPACKAGE_MGR = ${pm}`;
 
     writeFile(envKeyFile, configText, (err) => {
         if (err) {
             throw err;
         }
     });
+}
+
+export function appendEnvList({ envType }) {
+    let appendText
+
+    fs.stat(ENV_LIST, (err, stats) => {
+        if (err) {
+            throw err;
+        }
+
+        appendText = (stats.size > 0) ?  `\n${envType}` : `${envType}`
+    });
+
+    appendFileSync(ENV_LIST, `${appendText}`, (err) => {
+        if (err) {
+            throw err;
+        }
+    })
 }
 
 export function createIgnoreFile(ignoreFile) {
@@ -146,4 +186,32 @@ export function createIgnoreFile(ignoreFile) {
             throw err;
         }
     });
+}
+
+export function checkEnvList() {
+    if (!(existsSync(ENV_LIST))) {
+        createEnvList();
+    }
+}
+
+function createEnvList() {
+    let envString;
+
+    // 1. Get all env names from configs
+    fs.readdir(PATH_ENVKEYS, (err, files) => {
+        envString = files.map(file => file.replace('.env', '')).join(`\n`)
+    });
+    console.log(envString);
+
+    // 2. Write names to .envconfig file
+    writeFile(ENV_LIST, envString, (err) => {
+        if (err) {
+            throw err;
+        }
+    });
+}
+
+export function getEnvList() {
+    const envList = fs.readFileSync(ENV_LIST, 'utf8');
+    return envList.split('\n');
 }

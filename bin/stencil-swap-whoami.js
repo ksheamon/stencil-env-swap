@@ -5,6 +5,11 @@ import readLine from 'readline';
 
 import { PATH_ENVKEYS, ROOT_DIR, STOREURL_PATTERN } from '../src/constants.js';
 
+import { checkEnvList } from '../src/util.js';
+
+// Backward compatibility - create if not exist
+checkEnvList();
+
 const storeUrlParts = STOREURL_PATTERN.split('%%HASH%%', 2);
 
 const PREHASH = storeUrlParts[0];
@@ -46,20 +51,20 @@ function getActiveEnv(files, activeHash) {
         files.forEach((file, i) => {
             const env = file.replace('.env', '');
             let hash = false;
-        
+
             const filePath = `${PATH_ENVKEYS}/${file}`;
-        
+
             const inStream = createReadStream(filePath);
             const outStream = new Stream();
             const rl = readLine.createInterface(inStream, outStream);
             const regEx = new RegExp('STORE_HASH', "i");
-        
+
             rl.on('line', function (line) {
                 if (line && line.search(regEx) >= 0) {
                     hash = line.replace('STORE_HASH =', '').trim();
                 }
             });
-        
+
             rl.on('close', function () {
                 if (hash === activeHash) {
                     resolve(env);
