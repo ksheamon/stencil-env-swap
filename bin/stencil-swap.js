@@ -10,6 +10,12 @@ program.name('stencil-swap')
     .description(PACKAGE_INFO.description)
     .version(PACKAGE_INFO.version);
 
+
+program.command(
+    'delete',
+    'Deletes an existing Stencil environment'
+);
+
 program.command(
     'init',
     'Initializes the tool by adding a new Stencil environment to run a BigCommerce store locally.'
