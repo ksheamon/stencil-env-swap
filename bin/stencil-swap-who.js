@@ -1,11 +1,13 @@
 #! /usr/bin/env node
 import { checkEnvList, getEnvList } from '../src/util.js';
 
-// Backward compatibility - create if not exist
-checkEnvList();
+// Backward compatibility
+await checkEnvList()
 
-const allEnvs = getEnvList();
+setTimeout(() => {
+    const allEnvs = getEnvList();
 
-allEnvs.forEach((envType) => {
-    console.log(envType);
-});
+    allEnvs.forEach((envType) => {
+        console.log(envType);
+    });
+}, 1000);

@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 import { confirm, input, password, select } from '@inquirer/prompts';
-import { appendFileSync, copyFile, existsSync, mkdirSync, writeFile } from 'fs';
+import { appendFileSync, copyFile, existsSync, mkdirSync, readdir, readFileSync, stat, writeFile } from 'fs';
 
 import {
     BASE_CONFIG,
@@ -161,14 +161,12 @@ export function createEnvFile({ envType, hash, port, token, pm }) {
 }
 
 export function appendEnvList({ envType }) {
-    let appendText
-
-    fs.stat(ENV_LIST, (err, stats) => {
+    const appendText = stat(ENV_LIST, (err, stats) => {
         if (err) {
             throw err;
         }
 
-        appendText = (stats.size > 0) ?  `\n${envType}` : `${envType}`
+        return (stats.size > 0) ?  `\n${envType}` : `${envType}`
     });
 
     appendFileSync(ENV_LIST, `${appendText}`, (err) => {
@@ -188,23 +186,36 @@ export function createIgnoreFile(ignoreFile) {
     });
 }
 
-export function checkEnvList() {
-    if (!(existsSync(ENV_LIST))) {
-        createEnvList();
-    }
+export async function checkEnvList() {
+    return new Promise(async (res, rej) => {
+        if ((existsSync(ENV_LIST))) res();
+
+        await putEnvList();
+        res();
+    })
 }
 
-function createEnvList() {
-    let envString;
+function getAllEnvs() {
+    return new Promise((res, rej) => {
+        readdir(PATH_ENVKEYS, (err, files) => {
+            if (err) {
+                rej(err);
+            }
+            res(files.map(file => {
+                return file.replace('.env', '');
+            }));
+        });
+    })
+}
 
+export async function putEnvList(rmEnv = false) {
     // 1. Get all env names from configs
-    fs.readdir(PATH_ENVKEYS, (err, files) => {
-        envString = files.map(file => file.replace('.env', '')).join(`\n`)
-    });
-    console.log(envString);
+    const envNames = await getAllEnvs();
+    const filteredEnvs = rmEnv ? envNames.filter((file) => file !== rmEnv) : envNames;
+    const envListString = filteredEnvs.length ? filteredEnvs.join('\n') : "";
 
     // 2. Write names to .envconfig file
-    writeFile(ENV_LIST, envString, (err) => {
+    return writeFile(ENV_LIST, envListString, (err) => {
         if (err) {
             throw err;
         }
@@ -212,6 +223,6 @@ function createEnvList() {
 }
 
 export function getEnvList() {
-    const envList = fs.readFileSync(ENV_LIST, 'utf8');
+    const envList = readFileSync(ENV_LIST, 'utf8');
     return envList.split('\n');
 }

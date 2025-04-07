@@ -3,17 +3,26 @@ import { confirm as inquireConfirm, select } from '@inquirer/prompts';
 import { exec } from 'child_process';
 
 import {
-    ENVOPTS,
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
 } from '../src/constants.js';
 
+import { checkEnvList, getEnvList, putEnvList } from '../src/util.js'
+
 import { existsSync } from 'fs';
 
+
 async function promptUser() {
+    const ALLENVS = getEnvList();
+
     const envType = await select({
         message: 'Select an environment: ',
-        choices: ENVOPTS
+        choices: ALLENVS.map((env) => {
+            return {
+                name: env,
+                value: env
+            }
+        })
     });
 
     const confirm = await inquireConfirm({
@@ -31,6 +40,7 @@ async function promptUser() {
 }
 
 async function deleteEnv() {
+
     const userInput = await promptUser();
 
     if (!userInput) {
@@ -49,7 +59,13 @@ async function deleteEnv() {
         exec(`rm ${PATH_ENVKEYS}/${envType}.env`);
     }
 
+    // Revise .envconfig file
+    await putEnvList(envType);
+
     console.log(`Deleted ${envType} environment.`)
 }
 
-deleteEnv();
+// Backward compatibility
+await checkEnvList()
+
+setTimeout(() => deleteEnv(), 1000);
