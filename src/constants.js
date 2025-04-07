@@ -1,14 +1,14 @@
 #! /usr/bin/env node
 import PACKAGE_INFO from '../package.json' assert { type: "json" };
-
+import * as path from 'path';
 const ROOT_DIR = process.cwd();
 
 // Derrived paths
-const PATH_ENV = `${ROOT_DIR}/env`;
-const PATH_ENVCONFIG = `${ROOT_DIR}/env/config`;
-const PATH_ENVKEYS = `${ROOT_DIR}/env/keys`;
-const BASE_CONFIG = `${ROOT_DIR}/config.json`;
-const ENV_LIST = `${ROOT_DIR}/env/.envconfig`;
+const PATH_ENV = path.join(ROOT_DIR, '/env');
+const PATH_ENVCONFIG = path.join(ROOT_DIR, '/env/config');
+const PATH_ENVKEYS =  path.join(ROOT_DIR, '/env/keys');
+const BASE_CONFIG = path.join(ROOT_DIR, '/config.json');
+const ENV_LIST = path.join(ROOT_DIR, '/env/.envconfig');
 
 const ALLENVS = ['dev','stage','uat','prod'];
 const ALLPMS = ['npm','yarn','pnpm'];

@@ -6,7 +6,6 @@ import * as path from 'path';
 import {
     PATH_ENVCONFIG,
     PATH_ENVKEYS,
-    ROOT_DIR,
     STENCIL_HOST
 } from '../src/constants.js';
 
@@ -54,6 +53,15 @@ const { STORE_HASH, STENCIL_TOKEN, PORT, PACKAGE_MGR } = process.env;
 
 const sourcePath = path.join(`${PATH_ENVCONFIG}`, `/${$ENV}.config.json`);
 const destPath = path.join(`${ROOT_DIR}`, `/config.json`);
+
+// Check env data for invalid chars
+// [CWE-78, CWE-88]
+const regEx = new RegExp('[^a-zA-Z0-9\:\/\\\.]');
+
+if ((regEx.test(STORE_HASH)) || (regEx.test(STENCIL_TOKEN)) || (regEx.test(STENCIL_HOST)) || (regEx.test($ENV))) {
+    console.log('Error! Malformed config data');
+    process.exit(1);
+}
 
 // Copy environment config.json file to root
 exec(`cp ${sourcePath} ${destPath}`);
